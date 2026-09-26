@@ -3,7 +3,12 @@ package kr.hwaryuh.purity.fingerprint
 import java.util.concurrent.ConcurrentHashMap
 
 // UNKNOWN: a brand or identifier no fingerprint explains. Declared last so catalog detections are reported first.
-enum class Subject { CLIENT, LOADER, MOD, UNKNOWN }
+enum class Subject {
+    CLIENT,
+    LOADER,
+    MOD,
+    UNKNOWN,
+}
 
 sealed interface Signal {
     // Case-insensitive; '*' matches any sequence.

@@ -2,7 +2,11 @@ package kr.hwaryuh.purity.probe
 
 import kr.hwaryuh.purity.fingerprint.Signal
 
-enum class ProbeResult { RESOLVED, UNRESOLVED, INCONCLUSIVE }
+enum class ProbeResult {
+    RESOLVED,
+    UNRESOLVED,
+    INCONCLUSIVE,
+}
 
 // ponytail: mirrors Paper's default -DPaper.maxSignLength; servers overriding it need this changed.
 const val SIGN_LINE_LIMIT = 80
