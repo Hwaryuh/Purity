@@ -20,10 +20,10 @@ class Purity : JavaPlugin() {
         server.pluginManager.addPermission(bypass)
         lateinit var inspector: Inspector
         val probe = SignProbe(this, { inspector.settings }, { player, results -> inspector.onProbeFinished(player, results) })
-        inspector = Inspector(logger, tracker, Settings.from(config), probe::results)
+        inspector = Inspector(logger, tracker, loadSettings(), probe::results)
         val reload = {
             reloadConfig()
-            inspector.settings = Settings.from(config)
+            inspector.settings = loadSettings()
             server.onlinePlayers.forEach(inspector::recheck)
         }
         tracker.install { player -> player.scheduler.run(this, { inspector.recheck(player) }, null) }
@@ -32,6 +32,12 @@ class Purity : JavaPlugin() {
         lifecycleManager.registerEventHandler(
             LifecycleEvents.COMMANDS,
         ) { it.registrar().register(PurityCommand(inspector, probe, reload).build()) }
+    }
+
+    // Keys missing from a config.yml saved by an older version fall back to the bundled defaults, in memory only.
+    private fun loadSettings(): Settings {
+        config.options().copyDefaults(true)
+        return Settings.from(config)
     }
 
     override fun onDisable() {
