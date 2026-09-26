@@ -27,6 +27,30 @@ class FingerprintsTest {
         assertTrue(PROBES.all { it.key.length <= SIGN_LINE_LIMIT })
     }
 
+    // Real trace of a Dawn (Feather) client answering the configuration challenge.
+    @Test
+    fun dawnTraceIsFullyExplained() {
+        val o =
+            Observation(
+                "Dawn Fabric",
+                setOf(
+                    "c:register",
+                    "c:version",
+                    "dawn:client",
+                    "dawn_bs:replay_finished",
+                    "dawn_bs:replay_started",
+                    "fabric-menu-api-v1:open_screen",
+                    "fabric:registry/sync",
+                    "feather:client",
+                    "feather:client/frag",
+                ),
+                setOf("c:version", "minecraft:brand", "minecraft:register"),
+            )
+        val evidence = detect(FINGERPRINTS, o)
+        assertTrue(evidence.none { it.subject == Subject.UNKNOWN })
+        assertEquals(Verdict(Subject.CLIENT, "FEATHER"), evaluate(evidence, emptySet(), kickUnknown = true))
+    }
+
     @Test
     fun displayNames() {
         assertEquals("NeoForge", displayName("NEOFORGE"))

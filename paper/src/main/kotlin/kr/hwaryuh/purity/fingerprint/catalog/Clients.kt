@@ -12,9 +12,9 @@ internal val CLIENTS =
             brand("badlion*")
             channel("badlion:*")
         }
-        client("FEATHER", "Feather Client") {
-            brand("feather*")
-            channel("feather:*")
+        client("FEATHER", "Dawn (Feather Client)") {
+            brand("feather*", "dawn*")
+            channel("feather:*", "dawn:*", "dawn_bs:*")
         }
         client("LABYMOD", "LabyMod") {
             brand("*labymod*")
