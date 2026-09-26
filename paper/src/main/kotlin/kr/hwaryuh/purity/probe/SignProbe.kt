@@ -29,7 +29,6 @@ class SignProbe(
     private val plugin: Plugin,
     private val settings: () -> Settings,
     private val onFinished: (Player, Map<Signal.Probe, ProbeResult>) -> Unit,
-    private val onQuit: (UUID) -> Unit,
 ) : Listener {
     private class Run(
         val batches: List<List<Signal.Probe>>,
@@ -42,6 +41,10 @@ class SignProbe(
 
     private val running = HashMap<UUID, Run>()
     private val probed = HashSet<UUID>()
+    private val results = HashMap<UUID, Map<Signal.Probe, ProbeResult>>()
+
+    // Last finished probe of this session.
+    fun results(player: Player): Map<Signal.Probe, ProbeResult> = results[player.uniqueId].orEmpty()
 
     // Also fires after respawn and dimension changes, so auto probes run once per session.
     @EventHandler
@@ -58,9 +61,7 @@ class SignProbe(
         event.isCancelled = true
         run.timeout?.cancel()
         val lines = event.lines().map { PlainTextComponentSerializer.plainText().serialize(it) }
-        run.results += classifyProbe(run.batches[run.index], lines, CONTROL_KEY)
-        run.index++
-        send(player, run)
+        advance(player, run, classifyProbe(run.batches[run.index], lines, CONTROL_KEY))
     }
 
     @EventHandler
@@ -68,7 +69,7 @@ class SignProbe(
         val id = event.player.uniqueId
         running.remove(id)?.timeout?.cancel()
         probed.remove(id)
-        onQuit(id)
+        results.remove(id)
     }
 
     // Returns false when a probe is already running.
@@ -88,10 +89,7 @@ class SignProbe(
         if (run.index == run.batches.size) return finish(player, run)
         // Opening an editor over another GUI would desync it; give up instead.
         if (player.openInventory.type != InventoryType.CRAFTING) {
-            run.batches
-                .drop(run.index)
-                .flatten()
-                .forEach { run.results[it] = ProbeResult.INCONCLUSIVE }
+            run.results += inconclusive(run.batches.drop(run.index).flatten())
             return finish(player, run)
         }
         val location = player.location.toBlockLocation().apply { y = player.world.minHeight.toDouble() }
@@ -110,11 +108,7 @@ class SignProbe(
         run.position = position
         run.timeout =
             player.scheduler.runDelayed(plugin, {
-                if (running[player.uniqueId] === run) {
-                    run.batches[run.index].forEach { run.results[it] = ProbeResult.INCONCLUSIVE }
-                    run.index++
-                    send(player, run)
-                }
+                if (running[player.uniqueId] === run) advance(player, run, inconclusive(run.batches[run.index]))
             }, null, settings().probeTimeoutTicks)
     }
 
@@ -123,8 +117,21 @@ class SignProbe(
         run: Run,
     ) {
         running.remove(player.uniqueId)
+        results[player.uniqueId] = run.results
         onFinished(player, run.results)
     }
+
+    private fun advance(
+        player: Player,
+        run: Run,
+        batch: Map<Signal.Probe, ProbeResult>,
+    ) {
+        run.results += batch
+        run.index++
+        send(player, run)
+    }
+
+    private fun inconclusive(probes: List<Signal.Probe>) = probes.associateWith { ProbeResult.INCONCLUSIVE }
 
     private fun component(probe: Signal.Probe): Component =
         when (probe) {

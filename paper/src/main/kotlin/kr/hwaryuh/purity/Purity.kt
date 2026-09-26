@@ -18,14 +18,15 @@ class Purity : JavaPlugin() {
     override fun onEnable() {
         saveDefaultConfig()
         server.pluginManager.addPermission(bypass)
-        val inspector = Inspector(logger, tracker, Settings.from(config))
+        lateinit var inspector: Inspector
+        val probe = SignProbe(this, { inspector.settings }, { player, results -> inspector.onProbeFinished(player, results) })
+        inspector = Inspector(logger, tracker, Settings.from(config), probe::results)
         val reload = {
             reloadConfig()
             inspector.settings = Settings.from(config)
             server.onlinePlayers.forEach(inspector::recheck)
         }
         tracker.install { player -> player.scheduler.run(this, { inspector.recheck(player) }, null) }
-        val probe = SignProbe(this, { inspector.settings }, inspector::onProbeFinished, inspector::forgetProbes)
         server.pluginManager.registerEvents(ConnectionListener(this, inspector, tracker), this)
         server.pluginManager.registerEvents(probe, this)
         lifecycleManager.registerEventHandler(

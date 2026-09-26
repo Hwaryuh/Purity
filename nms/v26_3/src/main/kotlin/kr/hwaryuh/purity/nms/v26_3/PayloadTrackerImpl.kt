@@ -17,7 +17,6 @@ import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerCommonPacketListenerImpl
 import net.minecraft.server.network.ServerGamePacketListenerImpl
-import org.bukkit.craftbukkit.entity.CraftPlayer
 import org.bukkit.entity.Player
 import java.util.concurrent.ConcurrentHashMap
 
@@ -44,12 +43,6 @@ class PayloadTrackerImpl : PayloadTracker {
 
     private fun handle(connection: PlayerConnection): Connection =
         (PACKET_LISTENER.get(connection) as ServerCommonPacketListenerImpl).connection
-
-    override fun payloads(player: Player): Set<String> =
-        payloads(
-            (player as CraftPlayer)
-                .handle.connection.connection.channel,
-        )
 
     private fun payloads(channel: Channel): Set<String> =
         channel

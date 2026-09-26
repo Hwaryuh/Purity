@@ -8,6 +8,7 @@ import io.papermc.paper.command.brigadier.argument.ArgumentTypes
 import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver
 import kr.hwaryuh.purity.Inspector
 import kr.hwaryuh.purity.fingerprint.FINGERPRINTS
+import kr.hwaryuh.purity.info
 import kr.hwaryuh.purity.probe.SignProbe
 import net.kyori.adventure.text.Component
 import org.bukkit.entity.Player
@@ -31,17 +32,14 @@ class PurityCommand(
                             val o = inspector.observe(player)
                             val evidence = inspector.evidence(o)
                             val lines =
-                                buildList {
-                                    add("${player.name} brand=${o.brand}")
-                                    add("channels=${o.channels.sorted()}")
-                                    add("payloads=${o.payloads.sorted()}")
-                                    add("view-distance=${o.viewDistance}")
-                                    inspector
-                                        .probeResults(player)
-                                        .forEach { (key, result) -> add("probe $key: $result") }
-                                    evidence.forEach { add(" ${it.subject} ${it.id} via ${it.signal}: ${it.observed}") }
-                                    add("verdict=${inspector.verdict(evidence) ?: "allow"} enforce=${inspector.settings.enforce}")
-                                }
+                                info(
+                                    player.name,
+                                    o,
+                                    probe.results(player),
+                                    evidence,
+                                    inspector.verdict(evidence),
+                                    inspector.settings.enforce,
+                                )
                             ctx.source.sender.sendMessage(Component.text(lines.joinToString("\n")))
                             1
                         },

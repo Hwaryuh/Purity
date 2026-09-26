@@ -1,6 +1,9 @@
 package kr.hwaryuh.purity.config
 
 import kr.hwaryuh.purity.fingerprint.Subject
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.minimessage.MiniMessage
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import org.bukkit.configuration.ConfigurationSection
 
 // Kick messages per client locale. Lookup per message: exact locale (ko_kr), then same language (ko_*), then default.
@@ -25,7 +28,22 @@ class Messages(
             ?: byLocale.getValue(default).getValue(subject)
     }
 
+    // Tagged so the Velocity bridge disconnects instead of redirecting.
+    fun kick(
+        locale: String?,
+        subject: Subject,
+        id: String,
+    ): Component =
+        Component
+            .text()
+            .insertion(KICK_MARKER)
+            .append(MiniMessage.miniMessage().deserialize(get(locale, subject), Placeholder.unparsed("id", id)))
+            .build()
+
     companion object {
+        // Must match PurityVelocity.KICK_MARKER.
+        const val KICK_MARKER = "purity:kick"
+
         // messages.<blocked-subject>.<locale>
         fun from(section: ConfigurationSection?): Messages {
             requireNotNull(section) { "messages section is missing" }

@@ -30,6 +30,12 @@ class MessagesTest {
     }
 
     @Test
+    fun kickIsMarkedForVelocity() {
+        val kick = messages.kick("en_us", Subject.MOD, "SODIUM")
+        assertEquals(Messages.KICK_MARKER, kick.insertion())
+    }
+
+    @Test
     fun defaultMustBeComplete() {
         assertFailsWith<IllegalArgumentException> { Messages("en_us", mapOf("en_us" to mapOf(Subject.CLIENT to "x"))) }
     }
