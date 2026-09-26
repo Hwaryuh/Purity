@@ -28,6 +28,15 @@ class FingerprintsTest {
     }
 
     @Test
+    fun displayNames() {
+        assertEquals("NeoForge", displayName("NEOFORGE"))
+        assertEquals("Fabric", displayName("FABRIC"))
+        assertEquals("Modded loader", displayName("MODDED_LOADER"))
+        // Unknown ids are raw brands or namespaces.
+        assertEquals("Johndoe", displayName("JohnDoe"))
+    }
+
+    @Test
     fun challengeReplyIsModdedLoader() {
         val o = Observation("vanilla", payloads = setOf("minecraft:brand", "c:version"))
         assertEquals(Verdict(Subject.LOADER, "MODDED_LOADER"), evaluate(detect(FINGERPRINTS, o), emptySet(), kickUnknown = true))

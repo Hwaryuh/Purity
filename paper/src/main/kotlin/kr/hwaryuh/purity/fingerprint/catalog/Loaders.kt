@@ -15,7 +15,7 @@ internal val LOADERS =
             channel("forge:*", "fml:*")
             payload("forge:*", "fml:*")
         }
-        loader("NEOFORGE") {
+        loader("NEOFORGE", "NeoForge") {
             brand("neoforge*")
             channel("neoforge:*")
             payload("neoforge:*")

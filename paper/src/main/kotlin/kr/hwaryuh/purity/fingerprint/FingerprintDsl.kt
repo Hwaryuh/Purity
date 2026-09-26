@@ -1,10 +1,14 @@
 package kr.hwaryuh.purity.fingerprint
 
+// name is shown to players in kick messages; id is what config, logs and commands use.
 class Fingerprint(
     val id: String,
+    val name: String,
     val subject: Subject,
     val signals: List<Signal>,
 )
+
+fun sentenceCase(id: String): String = id.lowercase().replace('_', ' ').replaceFirstChar { it.uppercase() }
 
 class FingerprintBuilder {
     val signals = mutableListOf<Signal>()
@@ -27,25 +31,29 @@ class CatalogBuilder {
 
     fun client(
         id: String,
+        name: String = sentenceCase(id),
         block: FingerprintBuilder.() -> Unit,
-    ) = add(id, Subject.CLIENT, block)
+    ) = add(id, name, Subject.CLIENT, block)
 
     fun loader(
         id: String,
+        name: String = sentenceCase(id),
         block: FingerprintBuilder.() -> Unit,
-    ) = add(id, Subject.LOADER, block)
+    ) = add(id, name, Subject.LOADER, block)
 
     fun mod(
         id: String,
+        name: String = sentenceCase(id),
         block: FingerprintBuilder.() -> Unit,
-    ) = add(id, Subject.MOD, block)
+    ) = add(id, name, Subject.MOD, block)
 
     private fun add(
         id: String,
+        name: String,
         subject: Subject,
         block: FingerprintBuilder.() -> Unit,
     ) {
-        fingerprints += Fingerprint(id, subject, FingerprintBuilder().apply(block).signals)
+        fingerprints += Fingerprint(id, name, subject, FingerprintBuilder().apply(block).signals)
     }
 }
 

@@ -1,6 +1,7 @@
 package kr.hwaryuh.purity.config
 
 import kr.hwaryuh.purity.fingerprint.Subject
+import kr.hwaryuh.purity.fingerprint.displayName
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
@@ -37,7 +38,7 @@ class Messages(
         Component
             .text()
             .insertion(KICK_MARKER)
-            .append(MiniMessage.miniMessage().deserialize(get(locale, subject), Placeholder.unparsed("id", id)))
+            .append(MiniMessage.miniMessage().deserialize(get(locale, subject), Placeholder.unparsed("id", displayName(id))))
             .build()
 
     companion object {

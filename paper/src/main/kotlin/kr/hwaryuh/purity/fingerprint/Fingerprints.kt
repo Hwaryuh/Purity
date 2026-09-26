@@ -9,4 +9,9 @@ import kr.hwaryuh.purity.fingerprint.catalog.MODS
 // NoRisk, Alpine and Essential channels are taken from their official server API or mod sources.
 val FINGERPRINTS: List<Fingerprint> = LOADERS + CLIENTS + MODS
 
+private val NAMES = FINGERPRINTS.associate { it.id to it.name }
+
+// Unknown ids (raw brands, namespaces) have no catalog entry.
+fun displayName(id: String): String = NAMES[id] ?: sentenceCase(id)
+
 val PROBES: List<Signal.Probe> = FINGERPRINTS.flatMap { it.signals }.filterIsInstance<Signal.Probe>().distinct()

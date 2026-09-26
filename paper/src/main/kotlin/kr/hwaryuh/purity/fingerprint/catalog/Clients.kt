@@ -4,29 +4,29 @@ import kr.hwaryuh.purity.fingerprint.fingerprints
 
 internal val CLIENTS =
     fingerprints {
-        client("LUNAR") {
+        client("LUNAR", "Lunar Client") {
             brand("lunarclient*")
             channel("lunar:*", "lunarclient:*")
         }
-        client("BADLION") {
+        client("BADLION", "Badlion Client") {
             brand("badlion*")
             channel("badlion:*")
         }
-        client("FEATHER") {
+        client("FEATHER", "Feather Client") {
             brand("feather*")
             channel("feather:*")
         }
-        client("LABYMOD") {
+        client("LABYMOD", "LabyMod") {
             brand("*labymod*")
             channel("labymod:*", "labymod3:*")
         }
-        client("AXOLOTL") { channel("axolotlclient:*") }
-        client("FIVEZIG") { channel("the5zigmod:*") }
-        client("NORISK") { channel("norisk:*") }
+        client("AXOLOTL", "AxolotlClient") { channel("axolotlclient:*") }
+        client("FIVEZIG", "5zig") { channel("the5zigmod:*") }
+        client("NORISK", "NoRisk Client") { channel("norisk:*") }
         // "ac" is too generic to glob.
-        client("ALPINE") { channel("ac:handshake", "ac:play") }
+        client("ALPINE", "Alpine Client") { channel("ac:handshake", "ac:play") }
 
-        client("METEOR") {
+        client("METEOR", "Meteor Client") {
             brand("*meteor*")
             channel("meteor-client:*", "meteorclient:*", "meteor:client")
             keybind("key.meteor-client.open-gui")
@@ -46,7 +46,7 @@ internal val CLIENTS =
             channel("impact:*")
             translation("impact.module.killaura.name")
         }
-        client("LIQUIDBOUNCE") {
+        client("LIQUIDBOUNCE", "LiquidBounce") {
             brand("*liquidbounce*")
             translation("liquidbounce.module.killaura.name")
         }
@@ -54,11 +54,11 @@ internal val CLIENTS =
             brand("*inertia*")
             translation("inertia.module.killaura.name")
         }
-        client("BLEACHHACK") {
+        client("BLEACHHACK", "BleachHack") {
             brand("*bleachhack*")
             translation("bleachhack.module.killaura")
         }
-        client("RUSHERHACK") {
+        client("RUSHERHACK", "RusherHack") {
             brand("*rusherhack*")
             translation("rusherhack.module.killaura.name")
         }
@@ -77,7 +77,7 @@ internal val CLIENTS =
         client("NOVOLINE") { brand("*novoline*") }
         client("VAPE") { brand("*vape*") }
         client("RAVEN") { brand("*raven*") }
-        client("COFFEE") { translation("coffee.module.killaura.name") }
-        client("KAMI_BLUE") { translation("kami.module.killaura.name") }
+        client("COFFEE", "Coffee Client") { translation("coffee.module.killaura.name") }
+        client("KAMI_BLUE", "KAMI Blue") { translation("kami.module.killaura.name") }
         client("LUMINA") { keybind("key.lumina.open_click_gui") }
     }
