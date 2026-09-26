@@ -31,5 +31,10 @@ class FingerprintsTest {
     fun challengeReplyIsModdedLoader() {
         val o = Observation("vanilla", payloads = setOf("minecraft:brand", "c:version"))
         assertEquals(Verdict(Subject.LOADER, "MODDED_LOADER"), evaluate(detect(FINGERPRINTS, o), emptySet(), kickUnknown = true))
+        // A specific loader wins over the generic challenge answer.
+        assertEquals(
+            Verdict(Subject.LOADER, "NEOFORGE"),
+            evaluate(detect(FINGERPRINTS, o.copy(brand = "neoforge")), emptySet(), kickUnknown = true),
+        )
     }
 }

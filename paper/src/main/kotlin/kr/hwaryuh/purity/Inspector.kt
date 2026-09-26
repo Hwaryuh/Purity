@@ -1,6 +1,7 @@
 package kr.hwaryuh.purity
 
 import com.destroystokyo.paper.ClientOption
+import io.papermc.paper.connection.PlayerConfigurationConnection
 import kr.hwaryuh.purity.config.Settings
 import kr.hwaryuh.purity.detection.Evidence
 import kr.hwaryuh.purity.detection.Observation
@@ -26,13 +27,14 @@ const val KICK_MARKER = "purity:kick"
 
 class Inspector(
     private val logger: Logger,
-    val tracker: PayloadTracker,
+    private val tracker: PayloadTracker,
     var settings: Settings,
 ) {
     private val probeResults = HashMap<UUID, Map<Signal.Probe, ProbeResult>>()
 
     fun probeResults(player: Player): Map<Signal.Probe, ProbeResult> = probeResults[player.uniqueId].orEmpty()
 
+    // Game phase: probes can only have run after join.
     fun observe(player: Player) =
         Observation(
             player.clientBrandName,
@@ -42,12 +44,38 @@ class Inspector(
             player.getClientOption(ClientOption.VIEW_DISTANCE),
         )
 
+    // Configuration phase, before the player exists.
+    private fun observe(connection: PlayerConfigurationConnection) =
+        Observation(
+            connection.clientBrandName,
+            connection.listeningPluginChannels,
+            tracker.payloads(connection),
+            viewDistance = connection.getClientOption(ClientOption.VIEW_DISTANCE),
+        )
+
     fun evidence(o: Observation): List<Evidence> = detect(FINGERPRINTS, o)
 
     fun verdict(evidence: List<Evidence>): Verdict? = evaluate(evidence, settings.allow, settings.kickUnknown)
 
+    // Pre-join check. Permissions do not exist yet, so only the bypass UUID list applies.
+    fun check(connection: PlayerConfigurationConnection): Component? {
+        val profile = connection.profile
+        return check(
+            profile.name,
+            connection.getClientOption(ClientOption.LOCALE),
+            observe(connection),
+            bypass = profile.id in settings.bypass,
+            log = true,
+        )
+    }
+
+    fun recheck(player: Player) {
+        if (!player.isOnline || isBypassed(player)) return
+        check(player.name, player.getClientOption(ClientOption.LOCALE), observe(player), bypass = false, log = false)?.let(player::kick)
+    }
+
     // Returns the kick message, or null when the connection may stay.
-    fun check(
+    private fun check(
         name: String?,
         locale: String?,
         o: Observation,
@@ -69,11 +97,6 @@ class Inspector(
             .insertion(KICK_MARKER)
             .append(message)
             .build()
-    }
-
-    fun recheck(player: Player) {
-        if (!player.isOnline || isBypassed(player)) return
-        check(player.name, player.getClientOption(ClientOption.LOCALE), observe(player), bypass = false, log = false)?.let(player::kick)
     }
 
     fun onProbeFinished(

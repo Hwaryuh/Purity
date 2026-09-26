@@ -4,6 +4,7 @@ import io.netty.channel.Channel
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.ChannelInboundHandlerAdapter
 import io.netty.util.AttributeKey
+import io.papermc.paper.connection.PaperCommonConnection
 import io.papermc.paper.connection.PlayerConnection
 import io.papermc.paper.network.ChannelInitializeListenerHolder
 import kr.hwaryuh.purity.nms.PayloadTracker
@@ -33,16 +34,16 @@ class PayloadTrackerImpl : PayloadTracker {
         connections().forEach { it.channel.pipeline().runCatching { remove(HANDLER) } }
     }
 
-    override fun payloads(connection: PlayerConnection): Set<String> = find(connection)?.let { payloads(it.channel) }.orEmpty()
+    override fun payloads(connection: PlayerConnection): Set<String> = payloads(handle(connection).channel)
 
     // Paper's API only sends on channels the client registered, which nothing has yet.
     override fun challenge(connection: PlayerConnection) {
-        val target = find(connection) ?: return
+        val target = handle(connection)
         CHALLENGES.forEach { (id, body) -> target.send(ClientboundCustomPayloadPacket(DiscardedPayload(Identifier.parse(id), body))) }
     }
 
-    private fun find(connection: PlayerConnection): Connection? =
-        connections().firstOrNull { (it.packetListener as? ServerCommonPacketListenerImpl)?.paperConnection() === connection }
+    private fun handle(connection: PlayerConnection): Connection =
+        (PACKET_LISTENER.get(connection) as ServerCommonPacketListenerImpl).connection
 
     override fun payloads(player: Player): Set<String> =
         payloads(
@@ -71,15 +72,13 @@ class PayloadTrackerImpl : PayloadTracker {
         ) {
             if (msg is ServerboundCustomPayloadPacket) {
                 val set = ctx.channel().attr(PAYLOADS).get()
-                if (set != null && set.size < LIMIT &&
-                    set.add(
-                        msg
-                            .payload()
-                            .type()
-                            .id()
-                            .toString(),
-                    )
-                ) {
+                val id =
+                    msg
+                        .payload()
+                        .type()
+                        .id()
+                        .toString()
+                if (set != null && set.size < LIMIT && set.add(id)) {
                     val listener = (ctx.pipeline().get("packet_handler") as? Connection)?.packetListener
                     if (listener is ServerGamePacketListenerImpl) onNewInGame(listener.player.bukkitEntity)
                 }
@@ -93,6 +92,10 @@ class PayloadTrackerImpl : PayloadTracker {
         const val LIMIT = 256
         val KEY = Key.key("purity", "payload")
         val PAYLOADS: AttributeKey<MutableSet<String>> = AttributeKey.valueOf("purity_payloads")
+
+        // Paper keeps the listener protected; reading it avoids scanning every server connection.
+        val PACKET_LISTENER =
+            PaperCommonConnection::class.java.getDeclaredField("packetListener").apply { isAccessible = true }
 
         // Both loaders answer c:version [1] (VarInt array) and disconnect on any other version; vanilla discards both.
         val CHALLENGES =

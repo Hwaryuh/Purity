@@ -1,5 +1,7 @@
 package kr.hwaryuh.purity.fingerprint
 
+import java.util.concurrent.ConcurrentHashMap
+
 // UNKNOWN: a brand or identifier no fingerprint explains. Declared last so catalog detections are reported first.
 enum class Subject { CLIENT, LOADER, MOD, UNKNOWN }
 
@@ -7,32 +9,25 @@ sealed interface Signal {
     // Case-insensitive; '*' matches any sequence.
     sealed interface Glob : Signal {
         val pattern: String
-        val regex: Regex
 
-        fun matches(value: String): Boolean = regex.matches(value.lowercase())
+        fun matches(value: String): Boolean = REGEX.getOrPut(pattern) { glob(pattern) }.matches(value.lowercase())
     }
 
     data class Brand(
         override val pattern: String,
     ) : Glob {
-        override val regex = glob(pattern)
-
         override fun toString() = "brand:$pattern"
     }
 
     data class Channel(
         override val pattern: String,
     ) : Glob {
-        override val regex = glob(pattern)
-
         override fun toString() = "channel:$pattern"
     }
 
     data class Payload(
         override val pattern: String,
     ) : Glob {
-        override val regex = glob(pattern)
-
         override fun toString() = "payload:$pattern"
     }
 
@@ -60,5 +55,7 @@ sealed interface Signal {
         override fun toString() = "translate:$key"
     }
 }
+
+private val REGEX = ConcurrentHashMap<String, Regex>()
 
 fun glob(pattern: String): Regex = Regex(pattern.lowercase().split('*').joinToString(".*") { Regex.escape(it) })

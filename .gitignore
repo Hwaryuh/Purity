@@ -8,3 +8,4 @@ AGENTS.md
 build/
 .claude/
 .gradle/
+/.kotlin/

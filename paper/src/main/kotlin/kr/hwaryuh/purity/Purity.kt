@@ -26,7 +26,7 @@ class Purity : JavaPlugin() {
         }
         tracker.install { player -> player.scheduler.run(this, { inspector.recheck(player) }, null) }
         val probe = SignProbe(this, { inspector.settings }, inspector::onProbeFinished, inspector::forgetProbes)
-        server.pluginManager.registerEvents(ConnectionListener(this, inspector), this)
+        server.pluginManager.registerEvents(ConnectionListener(this, inspector, tracker), this)
         server.pluginManager.registerEvents(probe, this)
         lifecycleManager.registerEventHandler(
             LifecycleEvents.COMMANDS,

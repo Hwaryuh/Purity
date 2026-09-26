@@ -1,12 +1,11 @@
 package kr.hwaryuh.purity.listener
 
-import com.destroystokyo.paper.ClientOption
 import com.destroystokyo.paper.event.player.PlayerClientOptionsChangeEvent
 import io.papermc.paper.connection.PlayerConfigurationConnection
 import io.papermc.paper.event.connection.PlayerConnectionValidateLoginEvent
 import io.papermc.paper.event.connection.configuration.PlayerConnectionInitialConfigureEvent
 import kr.hwaryuh.purity.Inspector
-import kr.hwaryuh.purity.detection.Observation
+import kr.hwaryuh.purity.nms.PayloadTracker
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
@@ -16,33 +15,18 @@ import org.bukkit.plugin.Plugin
 class ConnectionListener(
     private val plugin: Plugin,
     private val inspector: Inspector,
+    private val tracker: PayloadTracker,
 ) : Listener {
     // Fires before the server sends its known packs; the client answers in order, so replies arrive before validation.
     @EventHandler
-    fun onInitialConfigure(event: PlayerConnectionInitialConfigureEvent) = inspector.tracker.challenge(event.connection)
+    fun onInitialConfigure(event: PlayerConnectionInitialConfigureEvent) = tracker.challenge(event.connection)
 
     // Fires at configuration finish with brand, config-phase channels and payloads already known, before the player exists.
     @EventHandler(priority = EventPriority.HIGH)
     fun onValidateLogin(event: PlayerConnectionValidateLoginEvent) {
         val connection = event.connection as? PlayerConfigurationConnection ?: return
         if (!event.isAllowed) return
-        val profile = connection.profile
-        val observation =
-            Observation(
-                connection.clientBrandName,
-                connection.listeningPluginChannels,
-                inspector.tracker.payloads(connection),
-                viewDistance = connection.getClientOption(ClientOption.VIEW_DISTANCE),
-            )
-        val bypass = profile.id in inspector.settings.bypass
-        inspector
-            .check(
-                profile.name,
-                connection.getClientOption(ClientOption.LOCALE),
-                observation,
-                bypass,
-                log = true,
-            )?.let(event::kickMessage)
+        inspector.check(connection)?.let(event::kickMessage)
     }
 
     // Only game-phase registrations fire this event.
