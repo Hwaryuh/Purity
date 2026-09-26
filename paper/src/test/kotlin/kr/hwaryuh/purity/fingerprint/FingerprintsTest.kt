@@ -1,5 +1,9 @@
 package kr.hwaryuh.purity.fingerprint
 
+import kr.hwaryuh.purity.detection.Observation
+import kr.hwaryuh.purity.detection.Verdict
+import kr.hwaryuh.purity.detection.detect
+import kr.hwaryuh.purity.detection.evaluate
 import kr.hwaryuh.purity.probe.SIGN_LINE_LIMIT
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -21,5 +25,11 @@ class FingerprintsTest {
         assertEquals(ids.size, ids.toSet().size, "duplicate ids")
         assertTrue(FINGERPRINTS.all { it.signals.isNotEmpty() })
         assertTrue(PROBES.all { it.key.length <= SIGN_LINE_LIMIT })
+    }
+
+    @Test
+    fun challengeReplyIsModdedLoader() {
+        val o = Observation("vanilla", payloads = setOf("minecraft:brand", "c:version"))
+        assertEquals(Verdict(Subject.LOADER, "MODDED_LOADER"), evaluate(detect(FINGERPRINTS, o), emptySet(), kickUnknown = true))
     }
 }

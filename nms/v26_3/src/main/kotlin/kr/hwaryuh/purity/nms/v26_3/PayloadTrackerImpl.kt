@@ -1,15 +1,18 @@
 package kr.hwaryuh.purity.nms.v26_3
 
-import kr.hwaryuh.purity.nms.PayloadTracker
 import io.netty.channel.Channel
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.ChannelInboundHandlerAdapter
 import io.netty.util.AttributeKey
 import io.papermc.paper.connection.PlayerConnection
 import io.papermc.paper.network.ChannelInitializeListenerHolder
+import kr.hwaryuh.purity.nms.PayloadTracker
 import net.kyori.adventure.key.Key
 import net.minecraft.network.Connection
+import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket
 import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket
+import net.minecraft.network.protocol.common.custom.DiscardedPayload
+import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerCommonPacketListenerImpl
 import net.minecraft.server.network.ServerGamePacketListenerImpl
@@ -30,11 +33,16 @@ class PayloadTrackerImpl : PayloadTracker {
         connections().forEach { it.channel.pipeline().runCatching { remove(HANDLER) } }
     }
 
-    override fun payloads(connection: PlayerConnection): Set<String> =
-        connections()
-            .firstOrNull { (it.packetListener as? ServerCommonPacketListenerImpl)?.paperConnection() === connection }
-            ?.let { payloads(it.channel) }
-            .orEmpty()
+    override fun payloads(connection: PlayerConnection): Set<String> = find(connection)?.let { payloads(it.channel) }.orEmpty()
+
+    // Paper's API only sends on channels the client registered, which nothing has yet.
+    override fun challenge(connection: PlayerConnection) {
+        val target = find(connection) ?: return
+        CHALLENGES.forEach { (id, body) -> target.send(ClientboundCustomPayloadPacket(DiscardedPayload(Identifier.parse(id), body))) }
+    }
+
+    private fun find(connection: PlayerConnection): Connection? =
+        connections().firstOrNull { (it.packetListener as? ServerCommonPacketListenerImpl)?.paperConnection() === connection }
 
     override fun payloads(player: Player): Set<String> =
         payloads(
@@ -85,5 +93,12 @@ class PayloadTrackerImpl : PayloadTracker {
         const val LIMIT = 256
         val KEY = Key.key("purity", "payload")
         val PAYLOADS: AttributeKey<MutableSet<String>> = AttributeKey.valueOf("purity_payloads")
+
+        // Both loaders answer c:version [1] (VarInt array) and disconnect on any other version; vanilla discards both.
+        val CHALLENGES =
+            listOf(
+                "c:version" to byteArrayOf(1, 1),
+                "minecraft:register" to "purity:probe".toByteArray(),
+            )
     }
 }

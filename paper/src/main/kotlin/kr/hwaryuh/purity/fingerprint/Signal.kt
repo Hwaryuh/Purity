@@ -36,6 +36,13 @@ sealed interface Signal {
         override fun toString() = "payload:$pattern"
     }
 
+    // Client-reported view distance. Vanilla caps the slider at 32 and accepts 33 from options.txt.
+    data class ViewDistanceAbove(
+        val limit: Int,
+    ) : Signal {
+        override fun toString() = "view-distance>$limit"
+    }
+
     // Resolved client-side by the sign probe. Keys are exact and case-sensitive.
     sealed interface Probe : Signal {
         val key: String

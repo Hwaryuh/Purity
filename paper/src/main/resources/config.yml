@@ -5,6 +5,7 @@
 enforce: true
 
 # Ids that are never kicked, e.g. [VOICECHAT, REPLAYMOD].
+# Allowing a Fabric, Quilt or NeoForge client also needs MODDED_LOADER: they answer Purity's c:version challenge.
 allow: []
 
 # A brand other than "vanilla", or a non-minecraft channel or payload, that no fingerprint explains.

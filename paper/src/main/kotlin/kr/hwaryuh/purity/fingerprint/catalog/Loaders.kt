@@ -15,6 +15,11 @@ internal val LOADERS =
             channel("forge:*", "fml:*")
             payload("forge:*", "fml:*")
         }
+        // Answer to the c:version challenge; Fabric, Quilt and NeoForge all implement it.
+        loader("MODDED_LOADER") {
+            channel("c:*")
+            payload("c:*")
+        }
         loader("NEOFORGE") {
             brand("neoforge*")
             channel("neoforge:*")

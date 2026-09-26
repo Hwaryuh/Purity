@@ -52,6 +52,8 @@ internal val MODS =
         mod("OPSEC") { keybind("key.opsec.toggle") }
         mod("NO_CHAT_REPORTS") { keybind("nochatreports.key.toggle") }
         mod("TWEAKEROO") { keybind("tweakeroo.feature_toggle.name.tweakfreecamera") }
+        // Bobby (maxRenderDistance) and slider-unlocking mods.
+        mod("EXTENDED_RENDER_DISTANCE") { viewDistanceAbove(33) }
         mod("IRIS") { keybind("iris.keybind.toggleShaders") }
         mod("SODIUM") { translation("sodium.options.pages.quality") }
         mod("OPTIFINE") {

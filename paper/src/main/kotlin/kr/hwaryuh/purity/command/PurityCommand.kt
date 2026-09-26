@@ -33,6 +33,7 @@ class PurityCommand(
                                     add("${player.name} brand=${o.brand}")
                                     add("channels=${o.channels.sorted()}")
                                     add("payloads=${o.payloads.sorted()}")
+                                    add("view-distance=${o.viewDistance}")
                                     inspector.probeResults(player).forEach { (key, result) -> add("probe $key: $result") }
                                     evidence.forEach { add(" ${it.subject} ${it.id} via ${it.signal}: ${it.observed}") }
                                     add("verdict=${inspector.verdict(evidence) ?: "allow"} enforce=${inspector.settings.enforce}")

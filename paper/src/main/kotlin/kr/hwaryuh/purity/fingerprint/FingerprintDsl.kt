@@ -15,6 +15,8 @@ class FingerprintBuilder {
 
     fun payload(vararg patterns: String) = patterns.mapTo(signals, Signal::Payload)
 
+    fun viewDistanceAbove(limit: Int) = signals.add(Signal.ViewDistanceAbove(limit))
+
     fun keybind(vararg keys: String) = keys.mapTo(signals, Signal::Keybind)
 
     fun translation(vararg keys: String) = keys.mapTo(signals, Signal::Translation)

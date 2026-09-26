@@ -25,6 +25,7 @@ data class Observation(
     val channels: Set<String> = emptySet(),
     val payloads: Set<String> = emptySet(),
     val probes: Set<Signal.Probe> = emptySet(),
+    val viewDistance: Int? = null,
 )
 
 // ponytail: Geyser and Floodgate are assumed benign from their docs; add entries when a real false positive shows up.
@@ -52,6 +53,7 @@ private fun match(
                         is Signal.Channel -> o.channels.filter(signal::matches)
                         is Signal.Payload -> o.payloads.filter(signal::matches)
                         is Signal.Probe -> if (signal in o.probes) listOf(signal.key) else emptyList()
+                        is Signal.ViewDistanceAbove -> listOfNotNull(o.viewDistance?.takeIf { it > signal.limit }?.toString())
                     }
                 observed.map { Evidence(fp.subject, fp.id, signal, it) }
             }

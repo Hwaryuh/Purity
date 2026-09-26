@@ -39,6 +39,7 @@ class Inspector(
             player.listeningPluginChannels,
             tracker.payloads(player),
             probeResults(player).filterValues { it == ProbeResult.RESOLVED }.keys,
+            player.getClientOption(ClientOption.VIEW_DISTANCE),
         )
 
     fun evidence(o: Observation): List<Evidence> = detect(FINGERPRINTS, o)
@@ -58,8 +59,16 @@ class Inspector(
         val enforce = verdict != null && !bypass && settings.enforce
         if ((log && settings.logDetections) || enforce) logger.info(describe(name, o, evidence, verdict, bypass))
         if (!enforce) return null
-        val message = MiniMessage.miniMessage().deserialize(settings.messages.get(locale, verdict.subject), Placeholder.unparsed("id", verdict.id))
-        return Component.text().insertion(KICK_MARKER).append(message).build()
+        val message =
+            MiniMessage.miniMessage().deserialize(
+                settings.messages.get(locale, verdict.subject),
+                Placeholder.unparsed("id", verdict.id),
+            )
+        return Component
+            .text()
+            .insertion(KICK_MARKER)
+            .append(message)
+            .build()
     }
 
     fun recheck(player: Player) {
@@ -119,6 +128,7 @@ class Inspector(
             is Signal.Channel -> "channel \"${e.observed}\""
             is Signal.Payload -> "payload \"${e.observed}\""
             is Signal.Probe -> "probe ${e.signal}"
+            is Signal.ViewDistanceAbove -> "view distance ${e.observed}"
         }
 
     // e.g. "Probed Steve: 1 resolved [keybind:key.freecam.toggle], 27 unresolved, 1 inconclusive"

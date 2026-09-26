@@ -1,11 +1,11 @@
 package kr.hwaryuh.purity
 
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents
 import kr.hwaryuh.purity.command.PurityCommand
 import kr.hwaryuh.purity.config.Settings
 import kr.hwaryuh.purity.listener.ConnectionListener
 import kr.hwaryuh.purity.nms.PayloadTracker
 import kr.hwaryuh.purity.probe.SignProbe
-import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents
 import org.bukkit.permissions.Permission
 import org.bukkit.permissions.PermissionDefault
 import org.bukkit.plugin.java.JavaPlugin
@@ -26,7 +26,7 @@ class Purity : JavaPlugin() {
         }
         tracker.install { player -> player.scheduler.run(this, { inspector.recheck(player) }, null) }
         val probe = SignProbe(this, { inspector.settings }, inspector::onProbeFinished, inspector::forgetProbes)
-        server.pluginManager.registerEvents(ConnectionListener(inspector), this)
+        server.pluginManager.registerEvents(ConnectionListener(this, inspector), this)
         server.pluginManager.registerEvents(probe, this)
         lifecycleManager.registerEventHandler(
             LifecycleEvents.COMMANDS,

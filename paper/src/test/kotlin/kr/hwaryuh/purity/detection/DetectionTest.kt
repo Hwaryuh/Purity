@@ -18,6 +18,7 @@ class DetectionTest {
             mod("SODIUM") { channel("sodium:*") }
             mod("IRIS") { payload("iris:*") }
             mod("FREECAM") { keybind("key.freecam.toggle") }
+            mod("FAR") { viewDistanceAbove(33) }
         }
 
     private fun verdict(
@@ -52,6 +53,12 @@ class DetectionTest {
     fun allowSkipsToNextDetection() {
         assertNull(verdict(Observation("fabric"), allow = setOf("FABRIC")))
         assertEquals(Verdict(Subject.MOD, "SODIUM"), verdict(Observation("fabric", channels = setOf("sodium:x")), allow = setOf("FABRIC")))
+    }
+
+    @Test
+    fun viewDistanceAboveVanillaCap() {
+        assertNull(verdict(Observation("vanilla", viewDistance = 33)))
+        assertEquals(Verdict(Subject.MOD, "FAR"), verdict(Observation("vanilla", viewDistance = 34)))
     }
 
     @Test
