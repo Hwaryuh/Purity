@@ -1,0 +1,43 @@
+# Every detected client, loader and mod is kicked unless its id is listed in allow.
+# Ids: /purity ids. Detection rules live in the plugin, not here.
+
+# false: log what would be kicked, kick nobody.
+enforce: true
+
+# Ids that are never kicked, e.g. [VOICECHAT, REPLAYMOD].
+allow: []
+
+# A brand other than "vanilla", or a non-minecraft channel or payload, that no fingerprint explains.
+# kick: treat it as a detection. log: show it in logs and /purity info only.
+# With a loader in allow, every mod without a fingerprint counts as unknown; use log there.
+unknown: kick
+
+# UUIDs never kicked. Checked before join, where permissions are unavailable; purity.bypass applies after join.
+bypass: []
+
+# Translation-key probe, once per session after the client loads the world. /purity probe works regardless.
+# Resource packs that translate a probed key make vanilla clients look positive.
+probes:
+  enabled: true
+  timeout-ticks: 40
+
+logging:
+  detections: true
+  channels: false # include channels and payload identifiers
+
+# MiniMessage. <id> is the detected id.
+# Picked by client locale: exact (ko_kr), then same language (ko_*), then default. Missing translations fall back to default.
+messages:
+  default: ko_kr
+  blocked-client:
+    en_us: "<red>This client is not allowed.</red><newline>Detected: <id>"
+    ko_kr: "<red>허용되지 않은 클라이언트입니다.</red><newline>감지됨: <id>"
+  blocked-loader:
+    en_us: "<red>Mod loaders are not allowed.</red><newline>Detected: <id>"
+    ko_kr: "<red>모드 로더는 허용되지 않습니다.</red><newline>감지됨: <id>"
+  blocked-mod:
+    en_us: "<red>This mod is not allowed.</red><newline>Detected: <id>"
+    ko_kr: "<red>허용되지 않은 모드입니다.</red><newline>감지됨: <id>"
+  blocked-unknown:
+    en_us: "<red>Unrecognized client or mod.</red><newline>Detected: <id>"
+    ko_kr: "<red>확인되지 않은 클라이언트 또는 모드입니다.</red><newline>감지됨: <id>"

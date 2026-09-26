@@ -1,0 +1,10 @@
+*.class
+*.log
+.refs/
+.idea/
+CLAUDE.md
+AGENTS.md
+/.gradle/
+build/
+.claude/
+.gradle/
