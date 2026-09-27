@@ -20,8 +20,7 @@ internal val LOADERS =
             channel("neoforge:*")
             payload("neoforge:*")
         }
-        // Answer to the c:version challenge; Fabric, Quilt and NeoForge all implement it.
-        // Last, so a specific loader is reported first.
+        // Answer to the c:version challenge; Fabric API, Quilt and NeoForge implement it. Fabric Loader alone does not.
         loader("MODDED_LOADER") {
             channel("c:*")
             payload("c:*")

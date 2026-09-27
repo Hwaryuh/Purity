@@ -12,6 +12,6 @@ interface PayloadTracker {
 
     fun payloads(connection: PlayerConnection): Set<String>
 
-    // Sends c:version and minecraft:register so Fabric and NeoForge clients disclose themselves during configuration.
+    // Sends c:version and minecraft:register so Fabric API and NeoForge clients disclose themselves during configuration.
     fun challenge(connection: PlayerConnection)
 }

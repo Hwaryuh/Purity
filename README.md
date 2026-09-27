@@ -25,7 +25,7 @@
 | 브랜드           | 클라이언트가 보내는 brand 문자열 (`vanilla`, `fabric`, `lunarclient` 등) |
 | 채널             | `minecraft:register`로 등록한 플러그인 채널                              |
 | Payload          | 서버로 보낸 custom payload 식별자                                        |
-| `c:version` 응답 | Fabric·Quilt·NeoForge가 응답하는 공통 채널로 로더를 드러냅니다           |
+| `c:version` 응답 | Fabric API·Quilt·NeoForge가 응답하는 공통 채널로 로더를 드러냅니다       |
 | 시야 거리        | 바닐라 상한(32)을 넘는 값                                                |
 | 번역 키          | 월드 아래 보이지 않는 표지판으로 키바인드, 번역 키 해석 결과를 읽습니다  |
 
@@ -60,7 +60,7 @@ Velocity는 백엔드에서 추방당한 플레이어를 `try` 목록의 다음 
 enforce: true
 
 # 허용할 ID (예: [VOICECHAT, REPLAYMOD])
-# Fabric, Quilt, NeoForge 클라이언트를 허용하려면 MODDED_LOADER가 필요합니다.
+# Fabric API를 쓰는 Fabric, Quilt, NeoForge 클라이언트를 허용하려면 MODDED_LOADER가 필요합니다.
 allow: []
 
 # 기본 제공에 없는 브랜드, 채널 및 payload 처리 방식을 고릅니다. (kick 또는 log)
