@@ -9,6 +9,7 @@ import kr.hwaryuh.purity.nms.PayloadTracker
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
+import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerRegisterChannelEvent
 import org.bukkit.plugin.Plugin
 
@@ -36,6 +37,14 @@ class ConnectionListener(
     // Fires before the new options are applied, so recheck on the next tick.
     @EventHandler
     fun onClientOptionsChange(event: PlayerClientOptionsChangeEvent) {
-        if (event.hasViewDistanceChanged()) event.player.scheduler.run(plugin, { inspector.recheck(event.player) }, null)
+        if (event.hasViewDistanceChanged()) {
+            event.player.scheduler.run(
+                plugin,
+                {
+                    inspector.recheck(event.player)
+                },
+                null,
+            )
+        }
     }
 }
