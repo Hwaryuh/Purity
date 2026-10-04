@@ -108,7 +108,10 @@ class SignProbe(
         run.position = position
         run.timeout =
             player.scheduler.runDelayed(plugin, {
-                if (running[player.uniqueId] === run) advance(player, run, inconclusive(run.batches[run.index]))
+                if (running[player.uniqueId] === run) {
+                    run.results += inconclusive(run.batches.drop(run.index).flatten())
+                    finish(player, run)
+                }
             }, null, settings().probeTimeoutTicks)
     }
 
