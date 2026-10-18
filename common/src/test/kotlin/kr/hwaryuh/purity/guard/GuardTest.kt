@@ -78,12 +78,15 @@ class GuardTest {
             assertEquals(setOf(id), config.snapshot.bypassPlayers)
             assertEquals(setOf("plugins", "bukkit:"), config.snapshot.blockedCommands)
             assertEquals(text, Files.readString(file))
+            for ((accepted, expected) in listOf("blocked-commands: seed" to "seed", "blocked-commands: [7]" to "7")) {
+                Files.writeString(file, accepted)
+                config.snapshot = config.read()
+                assertEquals(setOf(expected), config.snapshot.blockedCommands)
+            }
             val previous = config.snapshot
             for (invalid in listOf(
                 "bypass-players: [",
                 "bypass-players: [bad]",
-                "blocked-commands: seed",
-                "blocked-commands: [7]",
                 "seed",
                 "[]",
                 "true",

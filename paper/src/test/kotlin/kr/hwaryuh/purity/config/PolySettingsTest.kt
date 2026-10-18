@@ -103,8 +103,6 @@ class PolySettingsTest {
                 "unknown: ignore",
                 "bypass: [invalid-uuid]",
                 "enforce: maybe",
-                "allow: SODIUM",
-                "bypass: 00000000-0000-0000-0000-000000000001",
                 "probes: []",
                 "probes: true",
                 "probes:\n  enabled: nope",
@@ -124,6 +122,14 @@ class PolySettingsTest {
             }
         }
     }
+
+    @Test
+    fun singleValueIsReadAsOneItemList() =
+        withFile("allow: SODIUM\nbypass: 00000000-0000-0000-0000-000000000001\n") { source, _ ->
+            val settings = source.load()
+            assertEquals(setOf("SODIUM"), settings.allow)
+            assertEquals(setOf(UUID.fromString("00000000-0000-0000-0000-000000000001")), settings.bypass)
+        }
 
     @Test
     fun customDefaultLocaleMustDefineEverySubject() =
