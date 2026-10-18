@@ -1,7 +1,0 @@
-{
-  "id": "purity",
-  "name": "Purity",
-  "version": "${version}",
-  "authors": ["Hwaryuh"],
-  "main": "kr.hwaryuh.purity.velocity.PurityVelocity"
-}
