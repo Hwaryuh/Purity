@@ -8,6 +8,7 @@ import kr.hwaryuh.poly.framework.listener.ListenerRegistry
 import kr.hwaryuh.purity.config.LoadedSettings
 import kr.hwaryuh.purity.config.Settings
 import kr.hwaryuh.purity.config.SettingsFile
+import kr.hwaryuh.purity.guard.GuardConfig
 import kr.hwaryuh.purity.listener.ConnectionListener
 import kr.hwaryuh.purity.listener.ProbeListener
 import kr.hwaryuh.purity.nms.PayloadTracker
@@ -22,6 +23,7 @@ class Purity(
     private val plugin: Plugin,
     documents: ConfigDocuments,
     private val listeners: ListenerRegistry,
+    private val guard: GuardConfig,
 ) : Lifecycle,
     Reloadable {
     override val id = RELOAD_ID
@@ -54,7 +56,9 @@ class Purity(
         try {
             if (!plugin.dataFolder.resolve("config.yml").exists()) plugin.saveResource("config.yml", false)
             val candidate = settingsFile.loadSnapshot()
+            val guardCandidate = guard.read()
             current = candidate
+            guard.snapshot = guardCandidate
             if (!candidate.detectionEnabled) return
             tracker = ServiceLoader.load(PayloadTracker::class.java, plugin.javaClass.classLoader).single()
             probe =
@@ -85,8 +89,10 @@ class Purity(
     override fun reload() {
         val candidate = settingsFile.loadSnapshot()
         require(candidate.detectionEnabled == detectionEnabled) { "Restart required to change detection.enabled" }
+        val guardCandidate = guard.read()
         if (detectionEnabled) inspector.settings = candidate.settings
         current = candidate
+        guard.snapshot = guardCandidate
     }
 
     override fun stop() {

@@ -3,6 +3,7 @@ plugins {
 }
 
 dependencies {
+    implementation(project(":common"))
     testImplementation(kotlin("test"))
     testImplementation(libs.velocity.api)
 }

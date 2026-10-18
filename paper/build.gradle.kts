@@ -3,6 +3,7 @@ plugins {
 }
 
 dependencies {
+    implementation(project(":common"))
     implementation(project(":nms:api"))
     runtimeOnly(project(":nms:v26_3"))
 

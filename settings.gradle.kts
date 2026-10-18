@@ -10,6 +10,7 @@ pluginManagement {
     plugins {
         id("poly.paper") version "0.1"
         id("poly.velocity") version "0.1"
+        id("poly.common") version "0.1"
     }
 }
 
@@ -26,6 +27,7 @@ dependencyResolutionManagement {
 }
 
 include(
+    ":common",
     ":paper",
     ":velocity",
     ":nms:api",
