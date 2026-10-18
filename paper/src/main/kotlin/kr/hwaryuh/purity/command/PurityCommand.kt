@@ -26,8 +26,12 @@ class PurityCommand(
     @Child("info")
     @Permission(INFO)
     fun info(
+        @Sender sender: CommandSender,
         @Arg("player") player: Player,
     ): Component {
+        if (!purity.detectionEnabled) {
+            return Component.text(if (sender is Player) "감지 기능이 비활성화되어 있습니다." else "Detection is disabled.")
+        }
         val inspector = purity.inspector
         val observation = inspector.observe(player)
         val evidence = inspector.evidence(observation)
@@ -48,7 +52,7 @@ class PurityCommand(
     fun ids(): Component {
         val lines =
             FINGERPRINTS.groupBy { it.subject }.map { (subject, fingerprints) ->
-                "$subject: ${fingerprints.joinToString(", ") { if (it.id in purity.inspector.settings.allow) "${it.id}(allowed)" else it.id }}"
+                "$subject: ${fingerprints.joinToString(", ") { if (it.id in purity.settings.allow) "${it.id}(allowed)" else it.id }}"
             }
         return Component.text(lines.joinToString("\n"))
     }
@@ -59,6 +63,9 @@ class PurityCommand(
         @Sender sender: CommandSender,
         @Arg("player") player: Player,
     ): Component {
+        if (!purity.detectionEnabled) {
+            return Component.text(if (sender is Player) "감지 기능이 비활성화되어 있습니다." else "Detection is disabled.")
+        }
         val started = purity.probe.start(player)
         val message =
             when {

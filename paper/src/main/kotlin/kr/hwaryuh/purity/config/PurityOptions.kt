@@ -13,6 +13,12 @@ data class PurityOptions(
     val probes: ProbeOptions = ProbeOptions(),
     val logging: LoggingOptions = LoggingOptions(),
     val messages: MessageOptions = MessageOptions(),
+    val detection: DetectionOptions = DetectionOptions(),
+)
+
+@Config(hasDefault = true)
+data class DetectionOptions(
+    val enabled: Boolean = true,
 )
 
 @Config(hasDefault = true)

@@ -12,7 +12,9 @@ class SettingsFile(
 ) {
     private val defaults = PurityOptionsLoader.loadFromString(documents, bundled)
 
-    fun load(): Settings {
+    fun load(): Settings = loadSnapshot().settings
+
+    fun loadSnapshot(): LoadedSettings {
         val document = documents.read(file)
         val separator = ConfigLoader.PATH_SEPARATOR
         val types =
@@ -27,6 +29,8 @@ class SettingsFile(
                 "logging${separator}detections" to Boolean::class,
                 "logging${separator}channels" to Boolean::class,
                 "messages" to Map::class,
+                "detection" to Map::class,
+                "detection${separator}enabled" to Boolean::class,
             )
         for ((path, type) in types) {
             document.get(path)?.let { value ->
@@ -40,7 +44,7 @@ class SettingsFile(
                 "log" -> false
                 else -> throw IllegalArgumentException("unknown must be kick or log, got ${options.unknown}")
             }
-        return Settings(
+        val settings = Settings(
             enforce = options.enforce,
             allow = options.allow,
             kickUnknown = kickUnknown,
@@ -51,8 +55,14 @@ class SettingsFile(
             logDetections = options.logging.detections,
             logChannels = options.logging.channels,
         )
+        return LoadedSettings(settings, options.detection.enabled)
     }
 }
+
+data class LoadedSettings(
+    val settings: Settings,
+    val detectionEnabled: Boolean,
+)
 
 private fun MessageOptions.toMessages(defaults: MessageOptions): Messages {
     val translations =

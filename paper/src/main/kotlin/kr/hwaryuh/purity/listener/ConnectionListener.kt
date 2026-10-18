@@ -5,14 +5,12 @@ import io.papermc.paper.connection.PlayerConfigurationConnection
 import io.papermc.paper.event.connection.PlayerConnectionValidateLoginEvent
 import io.papermc.paper.event.connection.configuration.PlayerConnectionInitialConfigureEvent
 import kr.hwaryuh.poly.framework.listener.HandleOrder
-import kr.hwaryuh.poly.framework.listener.Listener
 import kr.hwaryuh.poly.framework.listener.Subscribe
 import kr.hwaryuh.poly.platform.event.PolyReloadEvent
 import kr.hwaryuh.purity.Purity
 import org.bukkit.event.player.PlayerRegisterChannelEvent
 import org.bukkit.plugin.Plugin
 
-@Listener
 class ConnectionListener(
     private val plugin: Plugin,
     private val purity: Purity,

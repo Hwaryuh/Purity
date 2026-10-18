@@ -2,12 +2,10 @@ package kr.hwaryuh.purity.listener
 
 import io.papermc.paper.event.packet.UncheckedSignChangeEvent
 import io.papermc.paper.event.player.PlayerClientLoadedWorldEvent
-import kr.hwaryuh.poly.framework.listener.Listener
 import kr.hwaryuh.poly.framework.listener.Subscribe
 import kr.hwaryuh.purity.Purity
 import org.bukkit.event.player.PlayerQuitEvent
 
-@Listener
 class ProbeListener(
     private val purity: Purity,
 ) {

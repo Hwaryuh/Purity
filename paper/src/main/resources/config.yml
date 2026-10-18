@@ -1,6 +1,10 @@
 # Every detected client, loader and mod is kicked unless its id is listed in allow.
 # Ids: /purity ids. Detection rules live in the plugin, not here.
 
+# Restart required. false skips detection listeners and the packet tracker.
+detection:
+  enabled: true
+
 # false: log what would be kicked, kick nobody.
 enforce: true
 
