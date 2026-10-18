@@ -1,47 +1,82 @@
 package kr.hwaryuh.purity
 
-import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents
-import kr.hwaryuh.purity.command.PurityCommand
-import kr.hwaryuh.purity.config.Settings
-import kr.hwaryuh.purity.listener.ConnectionListener
+import kr.hwaryuh.poly.config.ConfigDocuments
+import kr.hwaryuh.poly.framework.di.Bean
+import kr.hwaryuh.poly.framework.di.Lifecycle
+import kr.hwaryuh.poly.framework.di.Reloadable
+import kr.hwaryuh.purity.config.SettingsFile
 import kr.hwaryuh.purity.nms.PayloadTracker
 import kr.hwaryuh.purity.probe.SignProbe
 import org.bukkit.permissions.Permission
 import org.bukkit.permissions.PermissionDefault
-import org.bukkit.plugin.java.JavaPlugin
+import org.bukkit.plugin.Plugin
 import java.util.ServiceLoader
 
-class Purity : JavaPlugin() {
-    private val tracker = ServiceLoader.load(PayloadTracker::class.java, javaClass.classLoader).single()
-    private val bypass = Permission(BYPASS_PERMISSION, PermissionDefault.FALSE)
+@Bean
+class Purity(
+    private val plugin: Plugin,
+    documents: ConfigDocuments,
+) : Lifecycle,
+    Reloadable {
+    override val id = RELOAD_ID
 
-    override fun onEnable() {
-        saveDefaultConfig()
-        server.pluginManager.addPermission(bypass)
-        lateinit var inspector: Inspector
-        val probe = SignProbe(this, { inspector.settings }, { player, results -> inspector.onProbeFinished(player, results) })
-        inspector = Inspector(logger, tracker, loadSettings(), probe::results)
-        val reload = {
-            reloadConfig()
-            inspector.settings = loadSettings()
-            server.onlinePlayers.forEach(inspector::recheck)
+    lateinit var tracker: PayloadTracker
+        private set
+    lateinit var inspector: Inspector
+        private set
+    lateinit var probe: SignProbe
+        private set
+
+    private val settingsFile by lazy {
+        val bundled =
+            requireNotNull(plugin.getResource("config.yml")) { "Missing bundled config.yml" }
+                .bufferedReader(Charsets.UTF_8)
+                .use { it.readText() }
+        SettingsFile(documents, plugin.dataFolder.resolve("config.yml"), bundled)
+    }
+    private var bypass: Permission? = null
+    private var trackerStarted = false
+
+    override fun start() {
+        try {
+            if (!plugin.dataFolder.resolve("config.yml").exists()) plugin.saveResource("config.yml", false)
+            val settings = settingsFile.load()
+            tracker = ServiceLoader.load(PayloadTracker::class.java, plugin.javaClass.classLoader).single()
+            probe = SignProbe(plugin, { inspector.settings }, { player, results -> inspector.onProbeFinished(player, results) })
+            inspector = Inspector(plugin.logger, tracker, settings, probe::results)
+
+            val permission = Permission(BYPASS_PERMISSION, PermissionDefault.FALSE)
+            plugin.server.pluginManager.addPermission(permission)
+            bypass = permission
+            trackerStarted = true
+            tracker.install { player -> player.scheduler.run(plugin, { inspector.recheck(player) }, null) }
+        } catch (failure: Throwable) {
+            try {
+                stop()
+            } catch (cleanup: Throwable) {
+                failure.addSuppressed(cleanup)
+            }
+            throw failure
         }
-        tracker.install { player -> player.scheduler.run(this, { inspector.recheck(player) }, null) }
-        server.pluginManager.registerEvents(ConnectionListener(this, inspector, tracker), this)
-        server.pluginManager.registerEvents(probe, this)
-        lifecycleManager.registerEventHandler(
-            LifecycleEvents.COMMANDS,
-        ) { it.registrar().register(PurityCommand(inspector, probe, reload).build()) }
     }
 
-    // Keys missing from a config.yml saved by an older version fall back to the bundled defaults, in memory only.
-    private fun loadSettings(): Settings {
-        config.options().copyDefaults(true)
-        return Settings.from(config)
+    override fun reload() {
+        inspector.settings = settingsFile.load()
     }
 
-    override fun onDisable() {
-        tracker.uninstall()
-        server.pluginManager.removePermission(bypass)
+    override fun stop() {
+        try {
+            if (trackerStarted) {
+                trackerStarted = false
+                tracker.uninstall()
+            }
+        } finally {
+            bypass?.let { plugin.server.pluginManager.removePermission(it) }
+            bypass = null
+        }
+    }
+
+    companion object {
+        const val RELOAD_ID = "purity"
     }
 }
