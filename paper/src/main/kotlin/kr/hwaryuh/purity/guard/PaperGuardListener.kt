@@ -26,6 +26,7 @@ class PaperGuardListener(
     fun onSendCommands(event: AsyncPlayerSendCommandsEvent<CommandSourceStack>) {
         if (!event.isAsynchronous && event.hasFiredAsync()) return
         val root = event.commandNode
+
         @Suppress("UNCHECKED_CAST")
         val maps = INDEXES.map { it.get(root) as MutableMap<String, CommandNode<CommandSourceStack>> }
         filter.hidden(event.player.uniqueId, maps.first().keys.toSet()).forEach { name ->

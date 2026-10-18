@@ -44,17 +44,18 @@ class SettingsFile(
                 "log" -> false
                 else -> throw IllegalArgumentException("unknown must be kick or log, got ${options.unknown}")
             }
-        val settings = Settings(
-            enforce = options.enforce,
-            allow = options.allow,
-            kickUnknown = kickUnknown,
-            bypass = options.bypass,
-            probesEnabled = options.probes.enabled,
-            probeTimeoutTicks = options.probes.timeoutTicks,
-            messages = options.messages.toMessages(defaults.messages),
-            logDetections = options.logging.detections,
-            logChannels = options.logging.channels,
-        )
+        val settings =
+            Settings(
+                enforce = options.enforce,
+                allow = options.allow,
+                kickUnknown = kickUnknown,
+                bypass = options.bypass,
+                probesEnabled = options.probes.enabled,
+                probeTimeoutTicks = options.probes.timeoutTicks,
+                messages = options.messages.toMessages(defaults.messages),
+                logDetections = options.logging.detections,
+                logChannels = options.logging.channels,
+            )
         return LoadedSettings(settings, options.detection.enabled)
     }
 }

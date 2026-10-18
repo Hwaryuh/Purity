@@ -8,8 +8,8 @@ import java.nio.file.Files
 import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertFails
+import kotlin.test.assertFalse
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
@@ -30,9 +30,10 @@ class GuardTest {
     @Test
     fun filterUsesOneLiveSnapshotForBlockingAndVisibility() {
         val player = UUID.randomUUID()
-        val rules = object : GuardRules {
-            override var snapshot = GuardSnapshot.of(GuardOptions(blockedCommands = setOf("seed")))
-        }
+        val rules =
+            object : GuardRules {
+                override var snapshot = GuardSnapshot.of(GuardOptions(blockedCommands = setOf("seed")))
+            }
         val filter = GuardFilter(rules)
         assertTrue(filter.blocks(player, " \tSeEd\t42") { false })
         assertEquals(listOf("seed"), filter.hidden(player, setOf("seed", "help")))
@@ -45,9 +46,10 @@ class GuardTest {
 
     @Test
     fun rejectionKeepsVanillaTwoLineShapeAndSuggestion() {
-        val rules = object : GuardRules {
-            override val snapshot = GuardSnapshot.of(GuardOptions())
-        }
+        val rules =
+            object : GuardRules {
+                override val snapshot = GuardSnapshot.of(GuardOptions())
+            }
         val lines = GuardFilter(rules).rejection("seed 42")
         assertEquals(2, lines.size)
         assertTrue(lines.all { it.color() == NamedTextColor.RED })
@@ -58,10 +60,11 @@ class GuardTest {
     @Test
     fun fileCreationAndReloadPreservePublishedSnapshotOnFailure() {
         val directory = Files.createTempDirectory("purity-guard-")
-        val plugin = object : PolyPlugin {
-            override val name = "Purity"
-            override val dataDirectory = directory
-        }
+        val plugin =
+            object : PolyPlugin {
+                override val name = "Purity"
+                override val dataDirectory = directory
+            }
         val file = directory.resolve("guard.yml")
         try {
             val config = GuardConfig(plugin, ConfigurateConfigDocuments())
@@ -76,7 +79,15 @@ class GuardTest {
             assertEquals(setOf("plugins", "bukkit:"), config.snapshot.blockedCommands)
             assertEquals(text, Files.readString(file))
             val previous = config.snapshot
-            for (invalid in listOf("bypass-players: [", "bypass-players: [bad]", "blocked-commands: seed", "blocked-commands: [7]", "seed", "[]", "true")) {
+            for (invalid in listOf(
+                "bypass-players: [",
+                "bypass-players: [bad]",
+                "blocked-commands: seed",
+                "blocked-commands: [7]",
+                "seed",
+                "[]",
+                "true",
+            )) {
                 Files.writeString(file, invalid)
                 assertFails { config.snapshot = config.read() }
                 assertSame(previous, config.snapshot)

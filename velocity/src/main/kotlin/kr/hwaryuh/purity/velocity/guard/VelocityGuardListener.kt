@@ -41,7 +41,11 @@ class VelocityGuardListener(
         if (!event.result.isAllowed) return
         val connection = player.currentServer.orElse(null)
         val names = known[player.uniqueId]?.takeIf { it.connection === connection }?.names
-        val label = event.command.trimStart().takeWhile { !it.isWhitespace() }.lowercase(Locale.ROOT)
+        val label =
+            event.command
+                .trimStart()
+                .takeWhile { !it.isWhitespace() }
+                .lowercase(Locale.ROOT)
         val local = proxy.commandManager.hasCommand(label)
         val blocked =
             filter.blocks(player.uniqueId, event.command) { name ->

@@ -22,14 +22,16 @@ class GuardPermissionsTest {
     fun wrapperDelegatesAndUpdatesMembershipWithoutReplacingFunction() {
         val id = UUID.randomUUID()
         val player = fake<Player> { method, _ -> if (method == "getUniqueId") id else error(method) }
-        val rules = object : GuardRules {
-            override var snapshot = GuardSnapshot.of(GuardOptions(setOf(id)))
-        }
+        val rules =
+            object : GuardRules {
+                override var snapshot = GuardSnapshot.of(GuardOptions(setOf(id)))
+            }
         var created = 0
-        val provider = PermissionProvider {
-            created++
-            PermissionFunction { permission -> if (permission == "other") Tristate.TRUE else Tristate.UNDEFINED }
-        }
+        val provider =
+            PermissionProvider {
+                created++
+                PermissionFunction { permission -> if (permission == "other") Tristate.TRUE else Tristate.UNDEFINED }
+            }
         val listener = VelocityGuardPermissions(rules, fake<Logger> { _, _ -> null })
         listener.start()
         val event = PermissionsSetupEvent(player, provider)
@@ -52,14 +54,19 @@ class GuardPermissionsTest {
 
     @Test
     fun consoleIsUntouchedAndProviderReplacementOnlyWarns() {
-        val rules = object : GuardRules {
-            override val snapshot = GuardSnapshot.of(GuardOptions())
-        }
+        val rules =
+            object : GuardRules {
+                override val snapshot = GuardSnapshot.of(GuardOptions())
+            }
         var warnings = 0
-        val listener = VelocityGuardPermissions(rules, fake<Logger> { method, _ ->
-            if (method == "warn") warnings++
-            null
-        })
+        val listener =
+            VelocityGuardPermissions(
+                rules,
+                fake<Logger> { method, _ ->
+                    if (method == "warn") warnings++
+                    null
+                },
+            )
         listener.start()
         val provider = PermissionProvider { PermissionFunction.ALWAYS_FALSE }
         val console = fake<PermissionSubject> { method, _ -> error(method) }
